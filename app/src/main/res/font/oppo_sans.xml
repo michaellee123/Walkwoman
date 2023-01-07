@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:font="@font/os_l"
+        android:fontWeight="200" />
+    <font
+        android:font="@font/os_r"
+        android:fontWeight="400" />
+    <font
+        android:font="@font/os_m"
+        android:fontWeight="500" />
+    <font
+        android:font="@font/os_b"
+        android:fontWeight="700" />
+    <font
+        android:font="@font/os_h"
+        android:fontWeight="800" />
+</font-family>
