@@ -11,6 +11,7 @@ import com.orhanobut.logger.PrettyFormatStrategy
 import com.scwang.smartrefresh.header.StoreHouseHeader
 import com.scwang.smartrefresh.layout.SmartRefreshLayout
 import com.scwang.smartrefresh.layout.footer.BallPulseFooter
+import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.services.PlaybackService
 import dog.abcd.walkwoman.utils.PlaybackController
 
@@ -32,9 +33,11 @@ class App : Application() {
         SmartRefreshLayout.setDefaultRefreshInitializer { context, layout ->
             layout.setDragRate(0.35f)
             layout.setEnableOverScrollBounce(true)
+            layout.setHeaderInsetStart(88f)
             layout.setEnableOverScrollDrag(true)
             layout.setEnableLoadMore(false)
             layout.setEnableRefresh(true)
+            layout.setPrimaryColors(getColor(R.color.background), getColor(R.color.text_color))
         }
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, layout ->
             val header = StoreHouseHeader(context)

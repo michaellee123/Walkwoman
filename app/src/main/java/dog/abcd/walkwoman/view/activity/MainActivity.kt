@@ -12,6 +12,7 @@ import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.base.BaseActivity
 import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.databinding.ActivityMainBinding
+import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Song
 import dog.abcd.walkwoman.utils.*
 import dog.abcd.walkwoman.view.fragment.AlbumsFragment
@@ -55,7 +56,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         bind.ibPrevious.setOnClickListener {
             previous()
         }
-        LiveEventBus.get<Song?>(EventKeys.currentSong).observe(this) {
+        LiveEventBus.get<Song?>(EventKeys.currentSong).observeSticky(this) {
             if (it != null) {
                 bind.tvTitle.text = it.title
                 bind.tvArtist.text = it.artist
@@ -69,9 +70,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 bind.ivCurrentSong.setImageResource(R.mipmap.default_audio_art)
             }
         }
-        LiveEventBus.get<Boolean>(EventKeys.playing).observe(this) {
+        LiveEventBus.get<Boolean>(EventKeys.playing).observeSticky(this) {
             bind.ibPlay.setImageResource(if (it) R.drawable.ic_pause else R.drawable.ic_play_arrow)
         }
+        bind.progressCircular.handleProgress()
+        LocalMediaModel.refresh()
     }
 
     class FragmentsAdapter(activity: FragmentActivity, val list: List<Fragment>) :

@@ -96,8 +96,9 @@
                         android:layout_height="48dp">
 
                         <dog.abcd.walkwoman.widgets.MyCircularProgress
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:id="@+id/progress_circular"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp" />
 
                         <androidx.appcompat.widget.AppCompatImageButton
                             android:id="@+id/ib_play"

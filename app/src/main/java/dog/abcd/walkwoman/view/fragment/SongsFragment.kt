@@ -1,10 +1,7 @@
 package dog.abcd.walkwoman.view.fragment
 
-import android.content.ContentResolver
-import android.database.Cursor
 import android.graphics.Rect
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,33 +10,24 @@ import com.bumptech.glide.Glide
 import com.gyf.immersionbar.ImmersionBar
 import com.gyf.immersionbar.ktx.immersionBar
 import com.gyf.immersionbar.ktx.statusBarHeight
+import com.jeremyliao.liveeventbus.LiveEventBus
 import com.luck.picture.lib.tools.ScreenUtils
 import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.base.BaseFragment
 import dog.abcd.walkwoman.base.QuickAdapter
 import dog.abcd.walkwoman.base.ViewBindingHolder
+import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.databinding.FragmentSongsBinding
 import dog.abcd.walkwoman.databinding.ItemSongBinding
+import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Song
 import dog.abcd.walkwoman.utils.changePlaylist
 import dog.abcd.walkwoman.utils.start
 
 
 class SongsFragment : BaseFragment<FragmentSongsBinding>() {
-    val projection = arrayOf(
-        MediaStore.Audio.Media._ID,
-        MediaStore.Audio.Media.ARTIST,
-        MediaStore.Audio.Media.TITLE,
-        MediaStore.Audio.Media.DATA,
-        MediaStore.Audio.Media.DISPLAY_NAME,
-        MediaStore.Audio.Media.ALBUM_ID,
-        MediaStore.Audio.Media.DURATION
-    )
 
-    var selection = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-
-    val songs = ArrayList<Song>()
-    val songAdapter = SongAdapter(songs)
+    val songAdapter = SongAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,51 +36,6 @@ class SongsFragment : BaseFragment<FragmentSongsBinding>() {
             fitsSystemWindows(false)
             transparentBar()
         }
-        val resolver: ContentResolver = context.contentResolver
-        val uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        val cursor: Cursor? =
-            resolver.query(uri, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER)
-        when {
-            cursor == null -> {
-                // query failed, handle error.
-            }
-            !cursor.moveToFirst() -> {
-                // no media on the device
-            }
-            else -> {
-                val titleColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE)
-                val idColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID)
-                val artistColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST)
-                val dataColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.DATA)
-                val displayNameColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.DISPLAY_NAME)
-                val albumIdColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM_ID)
-                val durationColumn: Int =
-                    cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.DURATION)
-                do {
-                    cursor.apply {
-                        songs.add(
-                            Song(
-                                getLong(idColumn),
-                                getString(artistColumn),
-                                getString(titleColumn),
-                                getString(dataColumn),
-                                getString(displayNameColumn),
-                                getLong(albumIdColumn),
-                                getLong(durationColumn)
-                            )
-                        )
-
-                    }
-                } while (cursor.moveToNext())
-            }
-        }
-        cursor?.close()
 
         bind.rvSong.layoutManager = LinearLayoutManager(context)
         bind.rvSong.adapter = songAdapter
@@ -105,7 +48,7 @@ class SongsFragment : BaseFragment<FragmentSongsBinding>() {
             ) {
                 val position = parent.getChildAdapterPosition(view)
                 when (position) {
-                    songs.lastIndex -> {
+                    songAdapter.data.lastIndex -> {
                         outRect.bottom = ScreenUtils.dip2px(context, 88f) +
                                 ImmersionBar.getNavigationBarHeight(context)
                     }
@@ -122,9 +65,16 @@ class SongsFragment : BaseFragment<FragmentSongsBinding>() {
             changePlaylist(songAdapter.data)
             start(songAdapter.getItem(position))
         }
+        LiveEventBus.get<List<Song>>(EventKeys.localSongs).observeSticky(this) {
+            songAdapter.setList(it)
+            bind.refreshLayout.finishRefresh()
+        }
+        bind.refreshLayout.setOnRefreshListener {
+            LocalMediaModel.refresh()
+        }
     }
 
-    class SongAdapter(list: MutableList<Song>) : QuickAdapter<Song, ItemSongBinding>(list) {
+    class SongAdapter : QuickAdapter<Song, ItemSongBinding>() {
         override fun convert(holder: ViewBindingHolder<ItemSongBinding>, item: Song) {
             holder.bind.tvTitle.text = item.title
             holder.bind.tvArtist.text = item.artist
