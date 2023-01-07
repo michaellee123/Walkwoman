@@ -29,7 +29,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity(), IDisposableH
         super.onCreate(savedInstanceState)
         immersionBar {
             fitsSystemWindows(false)
-            statusBarDarkFont(true)
+            statusBarDarkFont(false)
         }
         if (forcePortrait()) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT//竖屏

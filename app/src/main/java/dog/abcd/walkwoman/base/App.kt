@@ -37,7 +37,7 @@ class App : Application() {
             layout.setEnableOverScrollDrag(true)
             layout.setEnableLoadMore(false)
             layout.setEnableRefresh(true)
-            layout.setPrimaryColors(getColor(R.color.background), getColor(R.color.text_color))
+            layout.setPrimaryColors(getColor(R.color.transparent), getColor(R.color.text_color))
         }
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, layout ->
             val header = StoreHouseHeader(context)

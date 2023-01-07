@@ -23,6 +23,7 @@ import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Song
 import dog.abcd.walkwoman.utils.changePlaylist
 import dog.abcd.walkwoman.utils.start
+import dog.abcd.walkwoman.view.adapter.SongAdapter
 
 
 class SongsFragment : BaseFragment<FragmentSongsBinding>() {
@@ -71,20 +72,6 @@ class SongsFragment : BaseFragment<FragmentSongsBinding>() {
         }
         bind.refreshLayout.setOnRefreshListener {
             LocalMediaModel.refresh()
-        }
-    }
-
-    class SongAdapter : QuickAdapter<Song, ItemSongBinding>() {
-        override fun convert(holder: ViewBindingHolder<ItemSongBinding>, item: Song) {
-            holder.bind.tvTitle.text = item.title
-            holder.bind.tvArtist.text = item.artist
-
-
-            Glide.with(holder.bind.ivAlbum)
-                .load(item.albumArt)
-                .placeholder(R.mipmap.default_audio_art)
-                .error(R.mipmap.default_audio_art)
-                .into(holder.bind.ivAlbum)
         }
     }
 

@@ -12,6 +12,13 @@ data class Song(
     val displayName: String,
     val albumId: Long,
     val duration: Long,
+    val bitrate: Long,
+    val discNumber: Long,
+    val genre: String,
+    val isFavorite: Boolean,
+    val numTracks: Long,
+    val bucketDisplayName: String,
+    val cdTrackNumber: Long
 ) {
     companion object {
         val sArtworkUri = "content://media/external/audio/albumart".toUri()
