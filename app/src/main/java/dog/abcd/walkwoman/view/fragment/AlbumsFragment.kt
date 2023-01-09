@@ -54,14 +54,14 @@ class AlbumsFragment : BaseFragment<FragmentAlbumsBinding>() {
                 val position = parent.getChildAdapterPosition(view)
                 if (position and 1 == 0) {
                     //左边
-                    outRect.left = dp12
-                    outRect.right = dp12 / 2
-                } else {
                     outRect.left = dp12 / 2
-                    outRect.right = dp12
+                    outRect.right = 0
+                } else {
+                    outRect.left = 0
+                    outRect.right = dp12 / 2
                 }
                 outRect.top = 0
-                outRect.bottom = dp12
+                outRect.bottom = dp12 / 2
                 when (position) {
                     albumAdapter.data.lastIndex -> {
                         outRect.bottom = ScreenUtils.dip2px(context, 88f) +
@@ -80,8 +80,6 @@ class AlbumsFragment : BaseFragment<FragmentAlbumsBinding>() {
             intent.putExtras(bundle)
 
             val ivAlbum = view.findViewById<View>(R.id.iv_album)
-
-            ViewCompat.setTransitionName(ivAlbum, "album:" + albumAdapter.getItem(position).albumId)
 
             val anim: androidx.core.util.Pair<View, String> =
                 androidx.core.util.Pair(ivAlbum, ViewCompat.getTransitionName(ivAlbum)!!)
@@ -123,6 +121,7 @@ class AlbumsFragment : BaseFragment<FragmentAlbumsBinding>() {
             holder.bind.tvTitle.text = item.album
             holder.bind.tvArtist.text = item.artist
 
+            ViewCompat.setTransitionName(holder.bind.ivAlbum, "album:" + item.albumId)
             Glide.with(holder.bind.ivAlbum)
                 .load(item.albumArt)
                 .placeholder(R.mipmap.default_album_art)

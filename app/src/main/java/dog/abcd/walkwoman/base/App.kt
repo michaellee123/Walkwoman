@@ -28,6 +28,7 @@ class App : Application() {
         instance = this
 
         val intent = Intent(this, PlaybackService::class.java)
+        stopService(intent)
         startService(intent)
 
         SmartRefreshLayout.setDefaultRefreshInitializer { context, layout ->

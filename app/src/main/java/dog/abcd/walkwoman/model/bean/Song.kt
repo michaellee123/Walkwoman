@@ -18,7 +18,8 @@ data class Song(
     val isFavorite: Boolean,
     val numTracks: Long,
     val bucketDisplayName: String,
-    val cdTrackNumber: Long
+    val cdTrackNumber: Long,
+    val album: String
 ) {
     companion object {
         val sArtworkUri = "content://media/external/audio/albumart".toUri()

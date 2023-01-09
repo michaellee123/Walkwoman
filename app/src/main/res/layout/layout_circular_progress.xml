@@ -12,8 +12,8 @@
         android:layout_gravity="center"
         app:indicatorColor="@color/text_color"
         app:indicatorSize="48dp"
-        app:trackColor="@color/bottom_player_background"
+        app:trackColor="#CC27252B"
         app:trackCornerRadius="16dp"
-        app:trackThickness="3dp"
+        app:trackThickness="3.5dp"
         tools:progress="10" />
 </FrameLayout>

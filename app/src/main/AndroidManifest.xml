@@ -19,6 +19,13 @@
         android:theme="@style/Theme.Walkwoman"
         tools:targetApi="31">
         <activity
+            android:name=".view.activity.PlayerActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".view.activity.AlbumDetailsActivity"
             android:exported="false">
             <meta-data

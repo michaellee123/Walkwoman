@@ -96,6 +96,7 @@ object LocalMediaModel : IDisposableHandler {
                     cursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
                 val cdTrackNumberColumn =
                     cursor.getColumnIndex(MediaStore.Audio.Media.CD_TRACK_NUMBER)
+                val albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
                 do {
                     cursor.apply {
                         songs.add(
@@ -113,7 +114,8 @@ object LocalMediaModel : IDisposableHandler {
                                 getInt(isFavoriteColumn) != 0,
                                 getLong(numTracksColumn),
                                 getString(bucketDisplayNameColumn),
-                                getLongOrNull(cdTrackNumberColumn) ?: 0
+                                getLongOrNull(cdTrackNumberColumn) ?: 0,
+                                getStringOrNull(albumColumn) ?: unknown
                             )
                         )
 

@@ -48,7 +48,7 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         postponeEnterTransition()
         album = intent.getSerializableExtra("album") as Album
-
+        window.exitTransition = Fade()
         super.onCreate(savedInstanceState)
         immersionBar {
             transparentBar()
@@ -58,8 +58,25 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun initView() {
+        headerBinding = LayoutAlbumHeaderBinding.inflate(layoutInflater)
+
+        ViewCompat.setTransitionName(headerBinding.ivAlbum, "album:" + album.albumId)
+
+        bind.rvSong.layoutManager = LinearLayoutManager(this)
+        songAdapter.setHeaderView(headerBinding.root)
+
+        bind.rvSong.adapter = songAdapter
+
+
+        headerBinding.root.setPadding(0, ImmersionBar.getStatusBarHeight(this), 0, 0)
+        val lp = headerBinding.ivAlbum.layoutParams
+        lp.height = ScreenUtils.getScreenWidth(this) - ScreenUtils.dip2px(this, 24f)
+        headerBinding.ivAlbum.layoutParams = lp
+
+        headerBinding.tvAlbum.text = album.album
+        headerBinding.tvMore.text = album.artist
+
 
         Handler(Looper.getMainLooper()).postDelayed({
 
@@ -88,26 +105,6 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                 })
 
         }, 10)
-    }
-
-    override fun initView() {
-        headerBinding = LayoutAlbumHeaderBinding.inflate(layoutInflater)
-
-        ViewCompat.setTransitionName(headerBinding.ivAlbum, "album:" + album.albumId)
-
-        bind.rvSong.layoutManager = LinearLayoutManager(this)
-        songAdapter.setHeaderView(headerBinding.root)
-
-        bind.rvSong.adapter = songAdapter
-
-
-        headerBinding.root.setPadding(0, ImmersionBar.getStatusBarHeight(this), 0, 0)
-        val lp = headerBinding.ivAlbum.layoutParams
-        lp.height = ScreenUtils.getScreenWidth(this) - ScreenUtils.dip2px(this, 24f)
-        headerBinding.ivAlbum.layoutParams = lp
-
-        headerBinding.tvAlbum.text = album.album
-        headerBinding.tvMore.text = album.artist
 
         bind.rvSong.addItemDecoration(object : ItemDecoration() {
 
@@ -172,6 +169,7 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                     cursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
                 val cdTrackNumberColumn =
                     cursor.getColumnIndex(MediaStore.Audio.Media.CD_TRACK_NUMBER)
+                val albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
                 do {
                     cursor.apply {
                         songs.add(
@@ -189,7 +187,8 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                                 getInt(isFavoriteColumn) != 0,
                                 getLong(numTracksColumn),
                                 getString(bucketDisplayNameColumn),
-                                getLongOrNull(cdTrackNumberColumn) ?: 0
+                                getLongOrNull(cdTrackNumberColumn) ?: 0,
+                                getStringOrNull(albumColumn) ?: LocalMediaModel.unknown
                             )
                         )
 

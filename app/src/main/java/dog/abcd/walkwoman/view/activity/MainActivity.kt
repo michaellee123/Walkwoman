@@ -1,6 +1,11 @@
 package dog.abcd.walkwoman.view.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -72,6 +77,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         LiveEventBus.get<Boolean>(EventKeys.playing).observeSticky(this) {
             bind.ibPlay.setImageResource(if (it) R.drawable.ic_pause else R.drawable.ic_play_arrow)
+        }
+        bind.flGap.setOnClickListener {
+            val anim: androidx.core.util.Pair<View, String> =
+                androidx.core.util.Pair(
+                    bind.ivCurrentSong,
+                    ViewCompat.getTransitionName(bind.ivCurrentSong)!!
+                )
+
+            val activityOptionsCompat =
+                ActivityOptionsCompat.makeSceneTransitionAnimation(this, anim)
+
+            ActivityCompat.startActivity(
+                this,
+                Intent(this, PlayerActivity::class.java),
+                activityOptionsCompat.toBundle()
+            )
         }
         bind.progressCircular.handleProgress()
         LocalMediaModel.refresh()
