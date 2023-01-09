@@ -80,23 +80,27 @@ object LocalMediaModel : IDisposableHandler {
                 // no media on the device
             }
             else -> {
-                val titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val idColumn = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-                val artistColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-                val dataColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-                val displayNameColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)
-                val albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-                val durationColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
-                val bitrateColumn = cursor.getColumnIndex(MediaStore.Audio.Media.BITRATE)
-                val discNumberColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DISC_NUMBER)
-                val genreColumn = cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
-                val isFavoriteColumn = cursor.getColumnIndex(MediaStore.Audio.Media.IS_FAVORITE)
-                val numTracksColumn = cursor.getColumnIndex(MediaStore.Audio.Media.NUM_TRACKS)
+                val titleColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE)
+                val idColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID)
+                val artistColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ARTIST)
+                val dataColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATA)
+                val displayNameColumn =
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DISPLAY_NAME)
+                val albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.ALBUM_ID)
+                val durationColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DURATION)
+                val bitrateColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.BITRATE)
+                val discNumberColumn =
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DISC_NUMBER)
+                val genreColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.GENRE)
+                val isFavoriteColumn =
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.IS_FAVORITE)
+                val numTracksColumn =
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.NUM_TRACKS)
                 val bucketDisplayNameColumn =
-                    cursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.BUCKET_DISPLAY_NAME)
                 val cdTrackNumberColumn =
-                    cursor.getColumnIndex(MediaStore.Audio.Media.CD_TRACK_NUMBER)
-                val albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+                    cursor.getColumnIndex(MediaStore.Audio.AudioColumns.CD_TRACK_NUMBER)
+                val trackColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.TRACK)
                 do {
                     cursor.apply {
                         songs.add(
@@ -115,7 +119,7 @@ object LocalMediaModel : IDisposableHandler {
                                 getLong(numTracksColumn),
                                 getString(bucketDisplayNameColumn),
                                 getLongOrNull(cdTrackNumberColumn) ?: 0,
-                                getStringOrNull(albumColumn) ?: unknown
+                                getLongOrNull(trackColumn) ?: 0
                             )
                         )
 

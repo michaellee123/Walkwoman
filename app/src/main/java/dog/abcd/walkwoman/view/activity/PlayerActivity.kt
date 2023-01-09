@@ -15,6 +15,7 @@ import dog.abcd.walkwoman.base.BaseActivity
 import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.databinding.ActivityPlayerBinding
 import dog.abcd.walkwoman.model.bean.Song
+import dog.abcd.walkwoman.utils.*
 
 class PlayerActivity : BaseActivity<ActivityPlayerBinding>() {
 
@@ -32,7 +33,7 @@ class PlayerActivity : BaseActivity<ActivityPlayerBinding>() {
         LiveEventBus.get<Song?>(EventKeys.currentSong).observeSticky(this) {
             if (it != null) {
                 bind.tvTitle.text = it.title
-                bind.tvMore.text = it.artist + " - " + it.album
+                bind.tvMore.text = it.bucketDisplayName
 
                 Glide.with(bind.ivAlbum)
                     .asDrawable()
@@ -62,9 +63,28 @@ class PlayerActivity : BaseActivity<ActivityPlayerBinding>() {
             }
         }
 
+        LiveEventBus.get<Boolean>(EventKeys.playing).observeSticky(this) {
+            bind.ibPlay.setImageResource(if (it) R.drawable.ic_pause else R.drawable.ic_play_arrow)
+        }
+        bind.ibPlay.setOnClickListener {
+            if (isPlaying) {
+                pause()
+            } else {
+                start()
+            }
+        }
+        bind.ibNext.setOnClickListener {
+            next()
+        }
+        bind.ibPrevious.setOnClickListener {
+            previous()
+        }
+        bind.seekbar.handleProgress()
+
         Handler(Looper.getMainLooper()).postDelayed({
             startPostponedEnterTransition()
         }, 20)
 
     }
+
 }

@@ -8,10 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
-import android.transition.ChangeBounds
 import android.transition.Fade
-import android.transition.Slide
-import android.view.Gravity
 import android.view.View
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
@@ -133,14 +130,15 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
 
     fun querySongs() {
         val songs = ArrayList<Song>()
-        var selection =
+        val selection =
             MediaStore.Audio.Media.IS_MUSIC + " != 0 and " + MediaStore.Audio.Media.ALBUM_ID + " == " + album.albumId
+
         val resolver: ContentResolver = App.instance.contentResolver
         val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val cursor: Cursor? =
             resolver.query(
                 uri,
-                LocalMediaModel.projection,
+                null,
                 selection,
                 null,
                 MediaStore.Audio.Media.CD_TRACK_NUMBER
@@ -169,7 +167,7 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                     cursor.getColumnIndex(MediaStore.Audio.Media.BUCKET_DISPLAY_NAME)
                 val cdTrackNumberColumn =
                     cursor.getColumnIndex(MediaStore.Audio.Media.CD_TRACK_NUMBER)
-                val albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+                val trackColumn = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.TRACK)
                 do {
                     cursor.apply {
                         songs.add(
@@ -188,15 +186,17 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                                 getLong(numTracksColumn),
                                 getString(bucketDisplayNameColumn),
                                 getLongOrNull(cdTrackNumberColumn) ?: 0,
-                                getStringOrNull(albumColumn) ?: LocalMediaModel.unknown
+                                getLongOrNull(trackColumn) ?: 0
                             )
                         )
-
                     }
                 } while (cursor.moveToNext())
             }
         }
         cursor?.close()
+        songs.sortBy {
+            it.cdTrackNumber
+        }
         songAdapter.setList(songs)
     }
 

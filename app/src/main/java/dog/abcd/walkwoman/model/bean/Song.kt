@@ -19,11 +19,17 @@ data class Song(
     val numTracks: Long,
     val bucketDisplayName: String,
     val cdTrackNumber: Long,
-    val album: String
+    val track:Long
 ) {
     companion object {
         val sArtworkUri = "content://media/external/audio/albumart".toUri()
     }
 
     val albumArt: Uri get() = ContentUris.withAppendedId(sArtworkUri, albumId)
+
+    override fun toString(): String {
+        return "Song(id=$id, artist='$artist', title='$title', data='$data', displayName='$displayName', albumId=$albumId, duration=$duration, bitrate=$bitrate, discNumber=$discNumber, genre='$genre', isFavorite=$isFavorite, numTracks=$numTracks, bucketDisplayName='$bucketDisplayName', cdTrackNumber=$cdTrackNumber ,track=$track)"
+    }
+
+
 }

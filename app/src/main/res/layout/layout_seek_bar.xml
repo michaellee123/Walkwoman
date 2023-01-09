@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_now"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:minWidth="32dp"
+        android:textSize="13sp"
+        tools:text="0:11" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/tv_total"
+        android:layout_toEndOf="@id/tv_now"
+        android:max="30"
+        android:progressDrawable="@drawable/color_progress_seek"
+        android:splitTrack="false"
+        android:thumb="@drawable/slider_thumb"
+        tools:progress="20" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:minWidth="32dp"
+        android:textSize="13sp"
+        tools:text="06:00" />
+</RelativeLayout>

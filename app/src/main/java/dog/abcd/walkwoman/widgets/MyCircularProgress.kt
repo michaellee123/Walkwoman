@@ -31,7 +31,7 @@ class MyCircularProgress @JvmOverloads constructor(
 
     fun handleProgress() {
         setWillNotDraw(false)
-        LiveEventBus.get<Song>(EventKeys.currentSong).observe(context as LifecycleOwner) {
+        LiveEventBus.get<Song>(EventKeys.currentSong).observeSticky(context as LifecycleOwner) {
             progressIndicator.max = it.duration.toInt()
         }
     }
