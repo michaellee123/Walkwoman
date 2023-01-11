@@ -13,9 +13,9 @@ import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.databinding.LayoutSeekBarBinding
 import dog.abcd.walkwoman.model.bean.Song
-import dog.abcd.walkwoman.utils.formatTime
 import dog.abcd.walkwoman.utils.playProgress
 import dog.abcd.walkwoman.utils.seek
+import dog.abcd.walkwoman.utils.toReadableDurationString
 
 class SeekBar @JvmOverloads constructor(
     context: Context?,
@@ -35,7 +35,7 @@ class SeekBar @JvmOverloads constructor(
         setWillNotDraw(false)
         LiveEventBus.get<Song>(EventKeys.currentSong).observeSticky(context as LifecycleOwner) {
             binding.seekbar.max = it.duration.toInt()
-            binding.tvTotal.text = it.duration.toInt().formatTime()
+            binding.tvTotal.text = it.duration.toInt().toReadableDurationString()
         }
         binding.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -56,7 +56,7 @@ class SeekBar @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         binding.seekbar.progress = playProgress
-        binding.tvNow.text = playProgress.formatTime()
+        binding.tvNow.text = playProgress.toReadableDurationString()
         postInvalidate()
     }
 }

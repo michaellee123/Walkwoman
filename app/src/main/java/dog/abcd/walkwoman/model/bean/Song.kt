@@ -19,7 +19,7 @@ data class Song(
     val numTracks: Long,
     val bucketDisplayName: String,
     val cdTrackNumber: Long,
-    val track:Long
+    val track: Long
 ) {
     companion object {
         val sArtworkUri = "content://media/external/audio/albumart".toUri()
@@ -31,5 +31,6 @@ data class Song(
         return "Song(id=$id, artist='$artist', title='$title', data='$data', displayName='$displayName', albumId=$albumId, duration=$duration, bitrate=$bitrate, discNumber=$discNumber, genre='$genre', isFavorite=$isFavorite, numTracks=$numTracks, bucketDisplayName='$bucketDisplayName', cdTrackNumber=$cdTrackNumber ,track=$track)"
     }
 
+    val isHiRes: Boolean get() = bitrate >= 960000
 
 }

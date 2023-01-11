@@ -2,4 +2,17 @@
     <string name="app_name">Walkwoman</string>
     <string name="author">Michael Lee</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="playing_notification_description">The playing notification provides actions for play/pause etc.</string>
+    <string name="playing_notification_name">Playing notification</string>
+
+    <string name="action_next">Next</string>
+    <string name="action_play">Play</string>
+    <string name="action_play_all">Play all</string>
+    <string name="action_play_next">Play next</string>
+    <string name="action_play_pause">Play/Pause</string>
+    <string name="action_previous">Previous</string>
+
+    <string name="action_toggle_favorite">Toggle favorite</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_cast">Cast</string>
 </resources>

@@ -1,43 +1,64 @@
 package dog.abcd.walkwoman.services
 
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_MUSIC
-import android.media.MediaMetadata
 import android.media.MediaPlayer
-import android.media.session.MediaSession
 import android.os.Binder
 import android.os.IBinder
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.jeremyliao.liveeventbus.LiveEventBus
+import dog.abcd.walkwoman.BuildConfig
 import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.base.App
+import dog.abcd.walkwoman.constant.Constant.ACTION_PAUSE
+import dog.abcd.walkwoman.constant.Constant.ACTION_PENDING_QUIT
+import dog.abcd.walkwoman.constant.Constant.ACTION_PLAY
+import dog.abcd.walkwoman.constant.Constant.ACTION_QUIT
+import dog.abcd.walkwoman.constant.Constant.ACTION_REWIND
+import dog.abcd.walkwoman.constant.Constant.ACTION_SKIP
+import dog.abcd.walkwoman.constant.Constant.ACTION_STOP
+import dog.abcd.walkwoman.constant.Constant.ACTION_TOGGLE_PAUSE
 import dog.abcd.walkwoman.constant.EventKeys
+import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Song
+import dog.abcd.walkwoman.notification.PlayingNotification
+import dog.abcd.walkwoman.notification.PlayingNotificationImpl24
 import dog.abcd.walkwoman.utils.PlaybackController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class PlaybackService : Service(), PlaybackController {
 
     val tag = this.javaClass.simpleName
     var mediaPlayer: MediaPlayer? = null
-    lateinit var mediaSession: MediaSession
+    lateinit var mediaSession: MediaSessionCompat
 
     var shuffle = false
     var current = -1
         set(value) {
             field = value
-            if (value < 0) {
+            if (playlist.isEmpty() || field < 0) {
+                field = -1
                 currentSong = null
-            } else {
-                currentSong = playlist[value]
+                return
             }
+            currentSong = playlist[value]
         }
     var currentSong: Song? = null
         set(value) {
@@ -50,7 +71,9 @@ class PlaybackService : Service(), PlaybackController {
     var playing = false
         set(value) {
             field = value
+            playingNotification?.setPlaying(field)
             LiveEventBus.get<Boolean>(EventKeys.playing).post(field)
+            startForegroundOrNotify()
         }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -62,8 +85,27 @@ class PlaybackService : Service(), PlaybackController {
 
     override fun onCreate() {
         super.onCreate()
-        mediaSession = MediaSession(this, tag)
+        notificationManager = getSystemService(NotificationManager::class.java)
+
+        val mediaButtonReceiverComponentName = ComponentName(
+            applicationContext,
+            MediaButtonIntentReceiver::class.java
+        )
+
+        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
+        mediaButtonIntent.component = mediaButtonReceiverComponentName
+        val mediaButtonReceiverPendingIntent = PendingIntent.getBroadcast(
+            applicationContext, 0, mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+        mediaSession = MediaSessionCompat(
+            this,
+            BuildConfig.APPLICATION_ID,
+            mediaButtonReceiverComponentName,
+            mediaButtonReceiverPendingIntent
+        )
         App.instance.controller = this
+        initNotification()
     }
 
     override fun changePlaylist(list: List<Song>) {
@@ -111,6 +153,10 @@ class PlaybackService : Service(), PlaybackController {
     }
 
     override fun start() {
+        if (playlist.isEmpty()) {
+            //如果点播放的时候是空的播放列表，就拿所有歌曲默认开始播放(或者拿上一次的播放列表)
+            changePlaylist(LocalMediaModel.songs)
+        }
         if (current < 0) {
             current = 0
             currentSong?.let { start(it) }
@@ -156,6 +202,7 @@ class PlaybackService : Service(), PlaybackController {
         }
         mediaPlayer?.prepareAsync()
         currentSong?.let { updateMediaSession(it) }
+        startForegroundOrNotify()
     }
 
     override fun seek(msec: Int) {
@@ -177,13 +224,16 @@ class PlaybackService : Service(), PlaybackController {
         }
 
     fun updateMediaSession(song: Song) {
-        val metaData = MediaMetadata.Builder()
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, song.artist)
-            .putString(MediaMetadata.METADATA_KEY_TITLE, song.title)
-            .putLong(MediaMetadata.METADATA_KEY_DURATION, song.duration)
-            .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, null)
+        val metaData = MediaMetadataCompat.Builder()
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, song.artist)
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.bucketDisplayName)
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
+            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration)
+            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.cdTrackNumber)
+            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, null)
+            .putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, playlist.size.toLong())
 
-        // there only about notification's album art, so remove "isAlbumArtOnLockScreen" and "isBlurredAlbumArt"
         Glide.with(this)
             .asBitmap()
             .load(song.albumArt)
@@ -191,12 +241,13 @@ class PlaybackService : Service(), PlaybackController {
                 override fun onLoadFailed(errorDrawable: Drawable?) {
                     super.onLoadFailed(errorDrawable)
                     metaData.putBitmap(
-                        MediaMetadata.METADATA_KEY_ALBUM_ART,
+                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
                         BitmapFactory.decodeResource(
                             resources,
                             R.mipmap.default_audio_art
                         )
                     )
+                    mediaSession.setMetadata(metaData.build())
                 }
 
                 override fun onResourceReady(
@@ -204,12 +255,63 @@ class PlaybackService : Service(), PlaybackController {
                     transition: Transition<in Bitmap?>?,
                 ) {
                     metaData.putBitmap(
-                        MediaMetadata.METADATA_KEY_ALBUM_ART,
+                        MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
                         resource
                     )
+                    mediaSession.setMetadata(metaData.build())
                 }
 
                 override fun onLoadCleared(placeholder: Drawable?) {}
             })
+        playingNotification?.updateMetadata(song) {}
+    }
+
+    private var notificationManager: NotificationManager? = null
+    private var playingNotification: PlayingNotification? = null
+
+    fun initNotification() {
+        playingNotification =
+            PlayingNotificationImpl24.from(this, notificationManager!!, mediaSession.sessionToken)
+    }
+
+    private fun startForegroundOrNotify() {
+        if (playingNotification != null && currentSong != null) {
+            startForeground(
+                PlayingNotification.NOTIFICATION_ID, playingNotification!!.build(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+        } else {
+            // If we are already in foreground just update the notification
+            notificationManager?.notify(
+                PlayingNotification.NOTIFICATION_ID, playingNotification!!.build()
+            )
+        }
+    }
+
+    var pendingQuit = false
+    private val serviceScope = CoroutineScope(Job() + Dispatchers.Main)
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null && intent.action != null) {
+            serviceScope.launch {
+                when (intent.action) {
+                    ACTION_TOGGLE_PAUSE -> if (isPlaying) {
+                        pause()
+                    } else {
+                        start()
+                    }
+                    ACTION_PAUSE -> pause()
+                    ACTION_PLAY -> start()
+//                    ACTION_PLAY_PLAYLIST -> playFromPlaylist(intent)
+                    ACTION_REWIND -> previous()
+                    ACTION_SKIP -> next()
+                    ACTION_STOP, ACTION_QUIT -> {
+                        stop()
+                    }
+                    ACTION_PENDING_QUIT -> pendingQuit = true
+//                    TOGGLE_FAVORITE ->
+                }
+            }
+        }
+        return START_NOT_STICKY
     }
 }

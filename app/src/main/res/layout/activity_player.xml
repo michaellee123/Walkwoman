@@ -42,18 +42,11 @@
             android:textSize="15sp"
             tools:text="Michael Jackson • 1991 • 01:17:05" />
 
-        <RelativeLayout
+        <dog.abcd.walkwoman.widgets.SeekBar
+            android:id="@+id/seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp">
-
-            <dog.abcd.walkwoman.widgets.SeekBar
-                android:id="@+id/seekbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </RelativeLayout>
-
+            android:layout_marginTop="24dp" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/ll_control"

@@ -27,9 +27,12 @@ class App : Application() {
         super.onCreate()
         instance = this
 
-        val intent = Intent(this, PlaybackService::class.java)
-        stopService(intent)
-        startService(intent)
+        try {
+            val intent = Intent(this, PlaybackService::class.java)
+            startService(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         SmartRefreshLayout.setDefaultRefreshInitializer { context, layout ->
             layout.setDragRate(0.35f)

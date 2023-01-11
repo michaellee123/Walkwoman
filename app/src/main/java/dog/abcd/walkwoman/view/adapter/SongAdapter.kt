@@ -13,7 +13,7 @@ class SongAdapter : QuickAdapter<Song, ItemSongBinding>() {
         holder.bind.tvTitle.text = item.title
         holder.bind.tvArtist.text = item.artist
 
-        holder.bind.hires.visibility = if (item.bitrate > 960000) View.VISIBLE else View.GONE
+        holder.bind.hires.visibility = if (item.isHiRes) View.VISIBLE else View.GONE
 
         Glide.with(holder.bind.ivAlbum)
             .load(item.albumArt)
