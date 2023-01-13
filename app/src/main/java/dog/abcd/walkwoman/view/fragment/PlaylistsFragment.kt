@@ -16,6 +16,7 @@ class PlaylistsFragment : BaseFragment<FragmentPlaylistsBinding>() {
             bind.rlTitle.setPadding(0, statusBarHeight, 0, 0)
             fitsSystemWindows(false)
             transparentBar()
+            statusBarDarkFont(!isDarkMode())
         }
     }
 

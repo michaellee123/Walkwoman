@@ -1,21 +1,19 @@
 package dog.abcd.walkwoman.base
 
 import android.annotation.SuppressLint
+import android.app.UiModeManager
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 import dog.abcd.fastmvp.IDisposableHandler
 import dog.abcd.nicedialog.NiceDialog
-import dog.abcd.nicedialog.NiceDialogFragment
 import dog.abcd.walkwoman.showToast
-import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
@@ -68,5 +66,9 @@ abstract class BaseFragment<T : ViewBinding> : Fragment(), IDisposableHandler, I
 
     fun Disposable.add() {
         addDisposable(this)
+    }
+
+    fun isDarkMode(): Boolean {
+        return (context.getSystemService(AppCompatActivity.UI_MODE_SERVICE) as UiModeManager).nightMode == UiModeManager.MODE_NIGHT_YES
     }
 }

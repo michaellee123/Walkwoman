@@ -52,7 +52,6 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
         immersionBar {
             transparentBar()
             fitsSystemWindows(false)
-            statusBarDarkFont(false)
         }
 
     }

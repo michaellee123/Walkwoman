@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="text_color">#E6FFFFFF</color>
+    <color name="control_button">#F1FFFFFF</color>
+    <color name="bottom_player_background">#E60C0C0C</color>
+    <color name="seek_color">#f1f1f1</color>
+</resources>

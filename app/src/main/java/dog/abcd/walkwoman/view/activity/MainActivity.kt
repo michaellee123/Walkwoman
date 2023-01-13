@@ -36,15 +36,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    }
-
-    override fun initView() {
         immersionBar {
-            statusBarDarkFont(false)
             fitsSystemWindows(false)
             transparentBar()
             bind.flGap.setPadding(0, 0, 0, navigationBarHeight)
         }
+    }
+
+    override fun initView() {
         fragmentsAdapter = FragmentsAdapter(this, fragments)
         bind.viewPager.adapter = fragmentsAdapter
         bind.viewPager.setCurrentItem(1, false)

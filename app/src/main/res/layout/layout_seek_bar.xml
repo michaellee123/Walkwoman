@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="300"
+        android:maxHeight="4dp"
         android:progressDrawable="@drawable/color_progress_seek"
         android:splitTrack="false"
         android:thumb="@drawable/slider_thumb"

@@ -29,7 +29,7 @@
             android:layout_height="match_parent"
             android:layout_alignBottom="@id/rl_title"
             app:realtimeBlurRadius="10dp"
-            app:realtimeOverlayColor="#FA000000" />
+            app:realtimeOverlayColor="@color/bottom_player_background" />
 
         <RelativeLayout
             android:id="@+id/rl_title"

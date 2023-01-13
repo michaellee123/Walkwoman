@@ -2,9 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="background">#000000</color>
+    <color name="background">#F2FFFFFF</color>
     <color name="transparent">#00000000</color>
-    <color name="text_color">#E6FFFFFF</color>
-    <color name="control_button">#F1FFFFFF</color>
-    <color name="bottom_player_background">#E60C0C0C</color>
+    <color name="text_color">#E6000000</color>
+    <color name="control_button">#F1000000</color>
+    <color name="bottom_player_background">#E6fefefe</color>
+    <color name="seek_color">#333333</color>
 </resources>

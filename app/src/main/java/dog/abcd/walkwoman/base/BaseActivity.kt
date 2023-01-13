@@ -1,12 +1,10 @@
 package dog.abcd.walkwoman.base
 
 import android.annotation.SuppressLint
-import android.app.ActivityManager
+import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.content.res.Resources
 import android.os.Bundle
-import android.os.Process
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
@@ -16,6 +14,7 @@ import dog.abcd.nicedialog.NiceDialog
 import dog.abcd.walkwoman.showToast
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+
 
 abstract class BaseActivity<T : ViewBinding> : AppCompatActivity(), IDisposableHandler,
     IViewBinder<T>, IBaseView {
@@ -29,7 +28,7 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity(), IDisposableH
         super.onCreate(savedInstanceState)
         immersionBar {
             fitsSystemWindows(false)
-            statusBarDarkFont(false)
+            statusBarDarkFont(!isDarkMode())
         }
         if (forcePortrait()) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT//竖屏
@@ -75,6 +74,10 @@ abstract class BaseActivity<T : ViewBinding> : AppCompatActivity(), IDisposableH
 
     fun Disposable.add() {
         addDisposable(this)
+    }
+
+    fun isDarkMode(): Boolean {
+        return (getSystemService(UI_MODE_SERVICE) as UiModeManager).nightMode == UiModeManager.MODE_NIGHT_YES
     }
 
 }
