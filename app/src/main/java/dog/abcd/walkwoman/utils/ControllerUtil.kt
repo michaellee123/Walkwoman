@@ -15,6 +15,10 @@ fun shuffle(shuffle: Boolean) {
     App.instance.controller?.shuffle(shuffle)
 }
 
+fun repeatOne(repeatOne: Boolean) {
+    App.instance.controller?.repeatOne(repeatOne)
+}
+
 fun pause() {
     App.instance.controller?.pause()
 }

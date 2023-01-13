@@ -29,7 +29,7 @@
             android:maxLines="1"
             android:textFontWeight="900"
             android:textSize="32sp"
-            tools:text="Dangerous" />
+            android:text="Walkwoman" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_more"
@@ -40,7 +40,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textSize="15sp"
-            tools:text="Michael Jackson • 1991 • 01:17:05" />
+            android:text="Michael Lee" />
 
         <dog.abcd.walkwoman.widgets.SeekBar
             android:id="@+id/seekbar"
@@ -56,6 +56,13 @@
             android:layout_centerVertical="true"
             android:gravity="center"
             android:padding="12dp">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/ib_mode"
+                style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_repeat" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/ib_previous"
@@ -78,6 +85,12 @@
                 android:layout_height="60dp"
                 android:src="@drawable/ic_skip_next" />
 
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/ib_repeat_one"
+                style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_repeat_one" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.appcompat.widget.LinearLayoutCompat>

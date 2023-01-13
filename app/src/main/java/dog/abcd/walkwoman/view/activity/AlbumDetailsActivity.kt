@@ -25,20 +25,22 @@ import com.luck.picture.lib.tools.ScreenUtils
 import dog.abcd.walkwoman.R
 import dog.abcd.walkwoman.base.App
 import dog.abcd.walkwoman.base.BaseActivity
+import dog.abcd.walkwoman.base.QuickAdapter
+import dog.abcd.walkwoman.base.ViewBindingHolder
 import dog.abcd.walkwoman.databinding.ActivityAlbumDetailsBinding
+import dog.abcd.walkwoman.databinding.ItemAlbumSongBinding
 import dog.abcd.walkwoman.databinding.LayoutAlbumHeaderBinding
 import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Album
 import dog.abcd.walkwoman.model.bean.Song
 import dog.abcd.walkwoman.utils.changePlaylist
 import dog.abcd.walkwoman.utils.start
-import dog.abcd.walkwoman.view.adapter.SongAdapter
 
 class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
 
     lateinit var album: Album
 
-    val songAdapter = SongAdapter()
+    val songAdapter = AlbumSongAdapter()
 
     lateinit var headerBinding: LayoutAlbumHeaderBinding
 
@@ -141,7 +143,7 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
                 null,
                 selection,
                 null,
-                MediaStore.Audio.Media.CD_TRACK_NUMBER
+                MediaStore.Audio.Media.TRACK
             )
         when {
             cursor == null -> {
@@ -194,13 +196,24 @@ class AlbumDetailsActivity : BaseActivity<ActivityAlbumDetailsBinding>() {
             }
         }
         cursor?.close()
-        songs.sortBy {
-            it.cdTrackNumber
-        }
+//        songs.sortBy {
+//            it.track
+//        }
         songAdapter.setList(songs)
     }
 
     override fun finishAfterTransition() {
         super.finishAfterTransition()
+    }
+
+    class AlbumSongAdapter : QuickAdapter<Song, ItemAlbumSongBinding>() {
+        override fun convert(holder: ViewBindingHolder<ItemAlbumSongBinding>, item: Song) {
+            holder.bind.tvTitle.text = item.title
+            holder.bind.tvArtist.text = item.artist
+            holder.bind.hires.visibility = if (item.isHiRes) View.VISIBLE else View.GONE
+            holder.bind.tvTruckNum.text =
+                if (item.track <= 0L) "-" else (item.track % 1000).toString()
+        }
+
     }
 }

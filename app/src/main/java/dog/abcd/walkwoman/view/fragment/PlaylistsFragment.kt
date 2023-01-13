@@ -17,9 +17,6 @@ class PlaylistsFragment : BaseFragment<FragmentPlaylistsBinding>() {
             fitsSystemWindows(false)
             transparentBar()
         }
-        bind.refreshLayout.setOnRefreshListener {
-            LocalMediaModel.refresh()
-        }
     }
 
 }

@@ -2,9 +2,7 @@ package dog.abcd.walkwoman.services
 
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
-import android.content.ComponentName
-import android.content.Intent
+import android.content.*
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,9 +11,12 @@ import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_MUSIC
 import android.media.MediaPlayer
 import android.os.Binder
+import android.os.Bundle
 import android.os.IBinder
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.media.MediaBrowserServiceCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
@@ -35,21 +36,24 @@ import dog.abcd.walkwoman.constant.Constant.ACTION_TOGGLE_PAUSE
 import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.model.LocalMediaModel
 import dog.abcd.walkwoman.model.bean.Song
+import dog.abcd.walkwoman.model.cache.AppCache
 import dog.abcd.walkwoman.notification.PlayingNotification
 import dog.abcd.walkwoman.notification.PlayingNotificationImpl24
+import dog.abcd.walkwoman.showToast
 import dog.abcd.walkwoman.utils.PlaybackController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class PlaybackService : Service(), PlaybackController {
+class PlaybackService : MediaBrowserServiceCompat(), PlaybackController {
 
     val tag = this.javaClass.simpleName
     var mediaPlayer: MediaPlayer? = null
     lateinit var mediaSession: MediaSessionCompat
 
     var shuffle = false
+    var repeatOne = false
     var current = -1
         set(value) {
             field = value
@@ -76,8 +80,25 @@ class PlaybackService : Service(), PlaybackController {
             startForegroundOrNotify()
         }
 
-    override fun onBind(intent: Intent?): IBinder {
-        return PlaybackBinder()
+    override fun onBind(intent: Intent): IBinder {
+        // For Android auto, need to call super, or onGetRoot won't be called.
+        return if ("android.media.browse.MediaBrowserService" == intent.action) {
+            super.onBind(intent)!!
+        } else PlaybackBinder()
+    }
+
+    override fun onGetRoot(
+        clientPackageName: String,
+        clientUid: Int,
+        rootHints: Bundle?
+    ): BrowserRoot? {
+        return null
+    }
+
+    override fun onLoadChildren(
+        parentId: String,
+        result: Result<MutableList<MediaBrowserCompat.MediaItem>>
+    ) {
     }
 
     class PlaybackBinder : Binder() {
@@ -106,6 +127,17 @@ class PlaybackService : Service(), PlaybackController {
         )
         App.instance.controller = this
         initNotification()
+        registerHeadsetEvents()
+
+        repeatOne = AppCache.repeatOne.get()
+        shuffle = AppCache.shuffle.get()
+        changePlaylist(AppCache.lastPlaylist.get())
+
+    }
+
+    override fun onDestroy() {
+        AppCache.lastPlaylist.put(playlistOrigin)
+        super.onDestroy()
     }
 
     override fun changePlaylist(list: List<Song>) {
@@ -134,6 +166,10 @@ class PlaybackService : Service(), PlaybackController {
         }
     }
 
+    override fun repeatOne(repeatOne: Boolean) {
+        this.repeatOne = repeatOne
+    }
+
     override fun pause() {
         mediaPlayer?.pause()
         playing = false
@@ -154,8 +190,12 @@ class PlaybackService : Service(), PlaybackController {
 
     override fun start() {
         if (playlist.isEmpty()) {
-            //如果点播放的时候是空的播放列表，就拿所有歌曲默认开始播放(或者拿上一次的播放列表)
+            //如果点播放的时候是空的播放列表，就拿所有歌曲默认开始播放
             changePlaylist(LocalMediaModel.songs)
+            if (playlist.isEmpty()) {
+                showToast("Playlist is empty")
+                return
+            }
         }
         if (current < 0) {
             current = 0
@@ -171,14 +211,30 @@ class PlaybackService : Service(), PlaybackController {
     }
 
     override fun next() {
+        if (playlist.isEmpty()) {
+            //如果点播放的时候是空的播放列表，就拿所有歌曲默认开始播放
+            changePlaylist(LocalMediaModel.songs)
+            if (playlist.isEmpty()) {
+                showToast("Playlist is empty")
+                return
+            }
+        }
         stop()
         current = if (current < playlist.lastIndex) current + 1 else 0
         prepare()
     }
 
     override fun previous() {
+        if (playlist.isEmpty()) {
+            //如果点播放的时候是空的播放列表，就拿所有歌曲默认开始播放
+            changePlaylist(LocalMediaModel.songs)
+            if (playlist.isEmpty()) {
+                showToast("Playlist is empty")
+                return
+            }
+        }
         stop()
-        current = if (current == 0) playlist.lastIndex else current - 1
+        current = if (current <= 0) playlist.lastIndex else current - 1
         prepare()
     }
 
@@ -195,7 +251,13 @@ class PlaybackService : Service(), PlaybackController {
             it.start()
             playing = true
         }
-        mediaPlayer?.setOnCompletionListener { next() }
+        mediaPlayer?.setOnCompletionListener {
+            if (repeatOne) {
+                prepare()
+            } else {
+                next()
+            }
+        }
         mediaPlayer?.setOnErrorListener { mp, what, extra ->
             next()
             false
@@ -313,5 +375,25 @@ class PlaybackService : Service(), PlaybackController {
             }
         }
         return START_NOT_STICKY
+    }
+
+    private val headsetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (action != null) {
+                if (Intent.ACTION_HEADSET_PLUG == action) {
+                    when (intent.getIntExtra("state", -1)) {
+                        0 -> pause()
+                        else -> {
+                            //暂时啥也不做
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun registerHeadsetEvents() {
+        registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
     }
 }

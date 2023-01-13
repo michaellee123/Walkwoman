@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -36,6 +37,7 @@ class SeekBar @JvmOverloads constructor(
         LiveEventBus.get<Song>(EventKeys.currentSong).observeSticky(context as LifecycleOwner) {
             binding.seekbar.max = it.duration.toInt()
             binding.tvTotal.text = it.duration.toInt().toReadableDurationString()
+            binding.tvHires.visibility = if (it.isHiRes) View.VISIBLE else View.INVISIBLE
         }
         binding.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

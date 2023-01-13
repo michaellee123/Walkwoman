@@ -15,6 +15,7 @@ import dog.abcd.walkwoman.base.BaseActivity
 import dog.abcd.walkwoman.constant.EventKeys
 import dog.abcd.walkwoman.databinding.ActivityPlayerBinding
 import dog.abcd.walkwoman.model.bean.Song
+import dog.abcd.walkwoman.model.cache.AppCache
 import dog.abcd.walkwoman.utils.*
 
 class PlayerActivity : BaseActivity<ActivityPlayerBinding>() {
@@ -80,6 +81,24 @@ class PlayerActivity : BaseActivity<ActivityPlayerBinding>() {
             previous()
         }
         bind.seekbar.handleProgress()
+
+        bind.ibMode.setOnClickListener {
+            AppCache.shuffle.put(!AppCache.shuffle.get())
+        }
+
+        bind.ibRepeatOne.setOnClickListener {
+            AppCache.repeatOne.put(!AppCache.repeatOne.get())
+        }
+
+        AppCache.shuffle.observe(this) {
+            shuffle(it)
+            bind.ibMode.setImageResource(if (it) R.drawable.ic_shuffle else R.drawable.ic_repeat)
+        }
+
+        AppCache.repeatOne.observe(this) {
+            repeatOne(it)
+            bind.ibRepeatOne.alpha = if (it) 1f else 0.3f
+        }
 
         Handler(Looper.getMainLooper()).postDelayed({
             startPostponedEnterTransition()

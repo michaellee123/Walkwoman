@@ -6,6 +6,7 @@ interface PlaybackController {
     fun changePlaylist(list: List<Song>)
     fun nextPlay(song: Song)
     fun shuffle(shuffle: Boolean)
+    fun repeatOne(repeatOne: Boolean)
     fun pause()
     fun stop()
     fun start()

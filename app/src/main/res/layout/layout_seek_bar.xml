@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -22,6 +23,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:minWidth="32dp"
+        android:textFontWeight="500"
         android:textSize="13sp"
         tools:text="0:11" />
 
@@ -35,6 +37,26 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="12dp"
         android:minWidth="32dp"
+        android:textFontWeight="500"
         android:textSize="13sp"
         tools:text="06:00" />
+
+    <com.noober.background.view.BLTextView
+        android:id="@+id/tv_hires"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekbar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:includeFontPadding="false"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="Hi-Res"
+        android:textColor="#231816"
+        android:textFontWeight="900"
+        android:textSize="12sp"
+        android:visibility="invisible"
+        app:bl_corners_radius="3dp"
+        app:bl_solid_color="#f6c016" />
+
 </RelativeLayout>
